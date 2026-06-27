@@ -1,0 +1,34 @@
+# Build output
+target/
+build/
+out/
+*.class
+*.jar
+*.war
+
+# Logs and runtime data (contains the auto-generated admin credentials file)
+logs/
+*.log
+
+# Uploaded MIB files (runtime data, not source)
+mib-files/
+
+# IDE / editor
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Spring Boot devtools
+.spring-boot-devtools.properties
+
+# Local config overrides
+application-local.properties

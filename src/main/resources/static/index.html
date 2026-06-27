@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SNMP NetConf Tool</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div id="app" class="app-layout">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <div class="logo-icon small">S</div>
+                <span class="app-title">SNMP NetConf Tool</span>
+            </div>
+            <div class="header-center">
+                <div class="global-search">
+                    <input type="text" id="globalSearchInput" placeholder="搜索 MIB 节点名称 / OID / 描述..." autocomplete="off">
+                    <button class="btn-icon" id="globalSearchBtn" title="搜索">🔍</button>
+                    <button class="btn-icon" id="advancedSearchBtn" title="高级搜索">⚙</button>
+                </div>
+            </div>
+            <div class="header-right">
+                <span id="userInfo" class="user-info"></span>
+                <button id="logoutBtn" class="btn btn-link">退出</button>
+            </div>
+        </header>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-tabs">
+                <button class="tab-btn active" data-tab="mib">MIB 树</button>
+                <button class="tab-btn" data-tab="device">设备</button>
+                <button class="tab-btn" data-tab="favorite">收藏</button>
+            </div>
+            <div class="sidebar-content">
+                <!-- MIB Tree Tab -->
+                <div class="tab-panel active" id="tab-mib">
+                    <div class="panel-toolbar">
+                        <button class="btn btn-sm" id="uploadMibBtn" title="导入 MIB 文件">＋ 导入</button>
+                        <button class="btn btn-sm" id="expandAllBtn" title="全部展开">⊕</button>
+                        <button class="btn btn-sm" id="collapseAllBtn" title="全部折叠">⊖</button>
+                        <button class="btn btn-sm" id="refreshTreeBtn" title="刷新">⟳</button>
+                        <button class="btn btn-sm btn-danger-outline" id="clearAllMibBtn" title="清空全部已导入的 MIB 模块" style="margin-left:auto;">🗑 清空</button>
+                    </div>
+                    <div class="tree-search">
+                        <input type="text" id="treeFilterInput" placeholder="过滤树节点...">
+                    </div>
+                    <div class="mib-tree-container" id="mibTreeContainer">
+                        <div class="empty-state">
+                            <p>尚未导入 MIB 文件</p>
+                            <button class="btn btn-primary btn-sm" onclick="document.getElementById('uploadMibBtn').click()">立即导入</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Device Tab -->
+                <div class="tab-panel" id="tab-device">
+                    <div class="panel-toolbar">
+                        <button class="btn btn-sm" id="addDeviceBtn">＋ 添加设备</button>
+                        <button class="btn btn-sm" id="refreshDevicesBtn">⟳ 刷新状态</button>
+                    </div>
+                    <div class="device-list" id="deviceList">
+                        <div class="empty-state">
+                            <p>尚未添加设备</p>
+                            <button class="btn btn-primary btn-sm" onclick="document.getElementById('addDeviceBtn').click()">立即添加</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Favorite Tab -->
+                <div class="tab-panel" id="tab-favorite">
+                    <div class="panel-toolbar">
+                        <span class="toolbar-title">收藏夹</span>
+                    </div>
+                    <div class="favorite-list" id="favoriteList">
+                        <div class="empty-state"><p>暂无收藏</p></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div class="content-tabs">
+                <div class="content-tab active" id="content-home">
+                    <div class="home-welcome">
+                        <h2>欢迎使用 SNMP NetConf Tool</h2>
+                        <p>MIB 管理与 SNMP 设备交互平台，支持 MIB 文件解析、SNMP v1/v2c/v3 通信、批量设备管理。</p>
+                        <div class="home-stats" id="homeStats">
+                            <div class="stat-card"><div class="stat-value" id="statModules">0</div><div class="stat-label">MIB 模块</div></div>
+                            <div class="stat-card"><div class="stat-value" id="statNodes">0</div><div class="stat-label">MIB 节点</div></div>
+                            <div class="stat-card"><div class="stat-value" id="statDevices">0</div><div class="stat-label">设备数</div></div>
+                            <div class="stat-card"><div class="stat-value" id="statOnline">0</div><div class="stat-label">在线设备</div></div>
+                        </div>
+                        <div class="home-guide" id="homeGuide">
+                            <h3>快速开始</h3>
+                            <ol>
+                                <li>点击左侧「MIB 树」标签的「导入」按钮上传 .mib 文件</li>
+                                <li>点击「设备」标签添加 SNMP 设备（支持 v1/v2c/v3）</li>
+                                <li>在 MIB 树中右键节点，选择「查询单个节点」或「查询整表」</li>
+                                <li>使用顶部搜索框进行全局搜索</li>
+                            </ol>
+                            <button class="btn btn-link" id="dismissGuideBtn">不再显示引导</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Modal container -->
+    <div id="modalRoot"></div>
+
+    <!-- Context menu -->
+    <div id="contextMenu" class="context-menu" style="display:none;"></div>
+
+    <!-- Templates -->
+    <script type="text/html" id="templates"></script>
+
+    <script src="/js/api.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/js/favorites.js"></script>
+    <script src="/js/upload.js"></script>
+    <script src="/js/tree.js"></script>
+    <script src="/js/search.js"></script>
+    <script src="/js/devices.js"></script>
+    <script src="/js/query.js"></script>
+    <script src="/js/export.js"></script>
+    <script src="/js/app.js"></script>
+</body>
+</html>
